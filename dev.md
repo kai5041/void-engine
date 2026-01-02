@@ -1,36 +1,23 @@
+> NOTE: where vars are zero, their value is equal to the incremented value of the last item.
 
-Coordinate2D {
-x: i64
-y: i64
+## Engine
+### Properties
+- worlds: Map<String, World*>
 
-  to_f7() {
-    return [this.x / 1'000'000.0f, this.y / 1'000'000.0f];
-  }
+### Functions
+// Prints to CLI if world_name already exists
+- add_world(String world_name, World *world): void
 
-}
+// Updates all worlds in a frame
+- update(float dt): void
 
+## World
+### Properties
+- objects: Map<u32, Object*>
 
-Coordinate2D {
-x: i64
-y: i64
-z: i64
-
-  to_f7() {
-    return [this.x / 1'000'000.0f, this.y / 1'000'000.0f, this.z / 1'000'000.0f];
-  }
-
-}
-
-
-BaseObject {
-id: u32
-label: string
-}
-
-Object2D: BaseObject {
-  Coordinate2D position
-}
-
-Object3D: BaseObject {
-  Coordinate3D position
-}
+### Functions
+- add_object(Object* object = nullptr): u32
+- remove_object(u32 id): void
+- get_objects(): auto
+- get_object(u32 id): Object*
+- step(float dt): void

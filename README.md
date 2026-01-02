@@ -1,4 +1,4 @@
-# Void Engine | Simulate in the void
+# Void Engine | A physics engine to simulate in the void
 [![License](https://img.shields.io/badge/license-Void%20Engine%20License%20v1.0-blue?style=flat-square)](LICENSE)
 [![Last Commit](https://img.shields.io/github/last-commit/HARMONY-REN-RDD/void-engine?style=flat-square)](https://github.com/HARMONY-REN-RDD/void-engine/commits)
 [![Downloads](https://img.shields.io/github/downloads/HARMONY-REN-RDD/void-engine/total?style=flat-square)](https://github.com/HARMONY-REN-RDD/void-engine/releases)

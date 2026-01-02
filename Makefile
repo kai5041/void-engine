@@ -1,52 +1,56 @@
-PROJECT_NAME := void_engine
+PROJECT_NAME := voe
 SRC_DIR := src
 INCLUDE_DIR := include
 BUILD_DIR := build
 
-SRC := $(shell find $(SRC_DIR) -type f -name '*.cpp')
-INCLUDE := $(shell find $(INCLUDE_DIR) -type f -name '*.hpp')
-
 CXX ?= g++
-CXX_FLAGS := -std=c++20 -Wall -fPIC -I$(INCLUDE_DIR)
-LD_FLAGS := -lpthread
+CXX_FLAGS ?= -std=c++17 -Wall -Wextra -Wpedantic -MMD -MP
+LD_FLAGS ?=
 
-LINUX_BUILD_DIR := $(BUILD_DIR)/linux
-WIN_BUILD_DIR   := $(BUILD_DIR)/win
+RELEASE_FLAGS ?= -O3 -DNDEBUG -static-libstdc++ -static-libgcc
 
-LINUX_OBJ := $(patsubst $(SRC_DIR)/%.cpp,$(LINUX_BUILD_DIR)/%.o,$(SRC))
-WIN_OBJ   := $(patsubst $(SRC_DIR)/%.cpp,$(WIN_BUILD_DIR)/%.o,$(SRC))
+PLATFORM_NAME ?= linux-x32_64
+include toolchains/$(PLATFORM_NAME).mk
 
-# Linux build
-# ----------------------------------------
-$(LINUX_BUILD_DIR)/$(PROJECT_NAME): $(LINUX_OBJ) | $(LINUX_BUILD_DIR) $(INCLUDE)
-	$(CXX) -o $@ $^ $(LD_FLAGS)
+SOURCES := $(wildcard $(SRC_DIR)/*.cpp)
+OBJECTS := $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/$(PLATFORM_NAME)/%.o,$(SOURCES))
+DEPS := $(OBJECTS:.o=.d)
 
-$(LINUX_BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(INCLUDE) $(LINUX_BUILD_DIR)
-	@ mkdir -p $(dir $@)
-	$(CXX) $(CXX_FLAGS) -c $< -o $@
+LIBS ?= $(wildcard ./libs/$(PLATFORM_NAME)/*.a)
 
-$(LINUX_BUILD_DIR):
-	mkdir -p $@
+all: CXX_FLAGS += -g
+all: $(BUILD_DIR)/$(PLATFORM_NAME)/$(PROJECT_NAME)
 
-linux: $(LINUX_BUILD_DIR)/$(PROJECT_NAME)
-	@echo "Linux build complete: $<"
+release: CXX_FLAGS += $(RELEASE_FLAGS)
+release: clean $(BUILD_DIR)/$(PLATFORM_NAME)/$(PROJECT_NAME)
 
-# Windows build
-# ----------------------------------------
-$(WIN_BUILD_DIR)/$(PROJECT_NAME).exe: $(WIN_OBJ) | $(WIN_BUILD_DIR) $(INCLUDE)
-	x86_64-w64-mingw32-g++ -o $@ $^ -static -static-libgcc -static-libstdc++ -lpthread
+$(BUILD_DIR)/$(PLATFORM_NAME)/$(PROJECT_NAME): $(OBJECTS)
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXX_FLAGS) -I$(INCLUDE_DIR) -o $@ $^ $(LIBS) $(LD_FLAGS)
 
-$(WIN_BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(INCLUDE) $(WIN_BUILD_DIR)
-	@ mkdir -p $(dir $@)
-	x86_64-w64-mingw32-g++ $(CXX_FLAGS) -c $< -o $@
+$(BUILD_DIR)/$(PLATFORM_NAME)/%.o: $(SRC_DIR)/%.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXX_FLAGS) -I$(INCLUDE_DIR) -c $< -o $@
 
-$(WIN_BUILD_DIR):
-	mkdir -p $@
+-include $(DEPS)
 
-win: $(WIN_BUILD_DIR)/$(PROJECT_NAME).exe
-	@echo "Windows build complete: $<"
+test:
+	g++ -shared -fPIC test/main.cpp -o test/arch.so -Iinclude
+	if ./build/linux-x32_64/xwm load ./test/arch.so this may be anything 2>/dev/null; then \
+		echo "All tests ran successfully"; \
+	else \
+		echo "Test failed with exit code $$?"; \
+	fi
 
-# Phony
-# ----------------------------------------
+
+
 clean:
 	rm -rf $(BUILD_DIR)
+
+run: all
+	./$(BUILD_DIR)/$(PLATFORM_NAME)/$(PROJECT_NAME)
+
+install: release
+	sudo cp $(BUILD_DIR)/$(PLATFORM_NAME)/$(PROJECT_NAME) /usr/local/bin/
+
+.PHONY: all release clean run test

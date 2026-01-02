@@ -1,5 +1,5 @@
 Void Engine License v1.0
-Copyright (c) 2025 HARMONYREN S.R.L. (name reserved, company in formation)
+Copyright (c) 2025 kai5041
 All rights reserved.
 
 1. DEFINITIONS
@@ -8,7 +8,7 @@ All rights reserved.
 - “Plugin or Extension” means a separate, add-on component that interacts with Void Engine without modifying its core source code.
 - “Derivative Work” means any modification or fork of Void Engine’s source code.
 
-2. GRANT OF PERMISSION
+1. GRANT OF PERMISSION
 Permission is hereby granted, free of charge, to any person obtaining a copy of Void Engine, to use, copy, modify, merge, publish, and distribute the Engine and its source code, subject to the following conditions:
 
   2.1. Commercial Use
