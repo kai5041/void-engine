@@ -36,7 +36,7 @@ $(BUILD_DIR)/$(PLATFORM_NAME)/%.o: $(SRC_DIR)/%.cpp
 
 test:
 	g++ -shared -fPIC test/main.cpp -o test/arch.so -Iinclude
-	if ./build/linux-x32_64/xwm load ./test/arch.so this may be anything 2>/dev/null; then \
+	if ./build/linux-x32_64/voe load ./test/arch.so this may be anything 2>/dev/null; then \
 		echo "All tests ran successfully"; \
 	else \
 		echo "Test failed with exit code $$?"; \
